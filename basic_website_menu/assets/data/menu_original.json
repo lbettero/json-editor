@@ -1,0 +1,379 @@
+[
+  {
+    "title": "Panel Principal",
+    "url": "#",
+    "tags": ["inicio", "principal", "dashboard", "resumen", "home"]
+  },
+  {
+    "title": "Monitoreo",
+    "tags": ["monitoreo", "dashboard", "tiempo-real", "estado", "seguimiento"],
+    "children": [
+      { "title": "Visión global", "url": "#", "tags": ["resumen", "overview", "monitoreo"] },
+      { "title": "Mapa de flota", "url": "#", "tags": ["mapa", "flota", "geolocalizacion", "tracking"] },
+      {
+        "title": "Estado general de sensores",
+        "tags": ["sensores", "estado", "salud", "monitoreo"],
+        "children": [
+          { "title": "Temperatura", "url": "#", "tags": ["temperatura", "sensor-temperatura", "temp"] },
+          { "title": "Presión", "url": "#", "tags": ["presion", "sensor-presion", "psi"] },
+          { "title": "Vibración", "url": "#", "tags": ["vibracion", "sensor-vibracion", "ruido"] }
+        ]
+      },
+      {
+        "title": "Alarmas activas",
+        "tags": ["alarmas", "alertas", "monitoreo"],
+        "children": [
+          { "title": "Alarmas por temperatura", "url": "#", "tags": ["alarmas", "temperatura", "umbral"] },
+          { "title": "Alarmas por presión", "url": "#", "tags": ["alarmas", "presion", "umbral"] },
+          { "title": "Alarmas por vibración", "url": "#", "tags": ["alarmas", "vibracion", "umbral"] },
+          { "title": "Alarmas por criticidad", "url": "#", "tags": ["alarmas", "criticidad", "prioridad"] }
+        ]
+      },
+      { "title": "Rendimiento en tiempo real", "url": "#", "tags": ["rendimiento", "tiempo-real", "kpi", "monitoreo"] },
+      { "title": "Histórico de rendimiento", "url": "#", "tags": ["rendimiento", "historico", "tendencias", "kpi"] }
+    ]
+  },
+  {
+    "title": "Equipos",
+    "tags": ["equipos", "inventario", "activos", "mantenimiento"],
+    "children": [
+      {
+        "title": "Por tipo",
+        "tags": ["clasificacion", "tipo", "equipos"],
+        "children": [
+          { "title": "Motores", "url": "#", "tags": ["motores", "equipo", "rotativo"] },
+          { "title": "Sensores", "url": "#", "tags": ["sensores", "instrumentacion", "iot"] },
+          { "title": "Controladores", "url": "#", "tags": ["controladores", "plc", "scada"] }
+        ]
+      },
+      {
+        "title": "Por fabricante",
+        "tags": ["fabricante", "marca", "proveedor"],
+        "children": [
+          { "title": "Fabricante X", "url": "#", "tags": ["fabricante", "marca", "proveedor", "x"] },
+          { "title": "Fabricante Y", "url": "#", "tags": ["fabricante", "marca", "proveedor", "y"] },
+          { "title": "Fabricante Z", "url": "#", "tags": ["fabricante", "marca", "proveedor", "z"] }
+        ]
+      },
+      {
+        "title": "Por modelo",
+        "tags": ["modelo", "serie", "catalogo"],
+        "children": [
+          { "title": "Serie ABC", "url": "#", "tags": ["modelo", "serie", "abc"] },
+          { "title": "Serie DEF", "url": "#", "tags": ["modelo", "serie", "def"] },
+          { "title": "Serie GHI", "url": "#", "tags": ["modelo", "serie", "ghi"] },
+          { "title": "Serie JKL", "url": "#", "tags": ["modelo", "serie", "jkl"] },
+          { "title": "Serie MNO", "url": "#", "tags": ["modelo", "serie", "mno"] }
+        ]
+      },
+      {
+        "title": "Por flota",
+        "tags": ["flota", "unidades", "agrupacion"],
+        "children": [
+          { "title": "Flota A", "url": "#", "tags": ["flota", "a", "unidades"] },
+          { "title": "Flota B", "url": "#", "tags": ["flota", "b", "unidades"] },
+          { "title": "Flota C", "url": "#", "tags": ["flota", "c", "unidades"] }
+        ]
+      },
+      {
+        "title": "Por estado operativo",
+        "tags": ["estado", "operativo", "disponibilidad"],
+        "children": [
+          { "title": "Activos", "url": "#", "tags": ["activos", "operativo", "online"] },
+          { "title": "En mantenimiento", "url": "#", "tags": ["mantenimiento", "programado", "offline"] },
+          { "title": "Fuera de servicio", "url": "#", "tags": ["fuera-de-servicio", "offline", "averia"] }
+        ]
+      },
+      {
+        "title": "Por ubicación física",
+        "tags": ["ubicacion", "planta", "sitio"],
+        "children": [
+          { "title": "Planta norte", "url": "#", "tags": ["ubicacion", "planta", "norte"] },
+          { "title": "Planta sur", "url": "#", "tags": ["ubicacion", "planta", "sur"] },
+          { "title": "Planta central", "url": "#", "tags": ["ubicacion", "planta", "central"] }
+        ]
+      },
+      {
+        "title": "Historial de mantenimiento",
+        "tags": ["mantenimiento", "historial", "ordenes", "ot"],
+        "children": [
+          { "title": "Últimas intervenciones", "url": "#", "tags": ["intervenciones", "reciente", "mantenimiento"] },
+          { "title": "Próximas revisiones", "url": "#", "tags": ["revisiones", "planificacion", "agenda"] },
+          { "title": "Repuestos utilizados", "url": "#", "tags": ["repuestos", "materiales", "consumo"] }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Reportes",
+    "tags": ["reportes", "informes", "exportar", "pdf", "excel"],
+    "children": [
+      {
+        "title": "Generar informe",
+        "tags": ["generar", "informe", "reportes"],
+        "children": [
+          { "title": "Informe diario", "url": "#", "tags": ["informe", "diario", "periodicidad"] },
+          { "title": "Informe semanal", "url": "#", "tags": ["informe", "semanal", "periodicidad"] },
+          { "title": "Informe mensual", "url": "#", "tags": ["informe", "mensual", "periodicidad"] }
+        ]
+      },
+      { "title": "Historial de reportes", "url": "#", "tags": ["historial", "reportes", "archivos"] },
+      {
+        "title": "Reportes personalizados",
+        "tags": ["personalizados", "filtros", "parametrizado"],
+        "children": [
+          { "title": "Por equipo", "url": "#", "tags": ["equipo", "filtro", "personalizado"] },
+          { "title": "Por usuario", "url": "#", "tags": ["usuario", "filtro", "personalizado"] },
+          { "title": "Por período", "url": "#", "tags": ["periodo", "rango-fechas", "filtro"] }
+        ]
+      },
+      {
+        "title": "Exportar datos",
+        "tags": ["exportar", "descargar", "reportes"],
+        "children": [
+          { "title": "CSV", "url": "#", "tags": ["csv", "excel-simple", "texto"] },
+          { "title": "PDF", "url": "#", "tags": ["pdf", "documento", "impresion"] },
+          { "title": "Excel", "url": "#", "tags": ["excel", "xlsx", "hojas-de-calculo"] }
+        ]
+      },
+      {
+        "title": "Reportes automáticos",
+        "tags": ["automaticos", "programacion", "planificacion"],
+        "children": [
+          { "title": "Programación de envío", "url": "#", "tags": ["programacion", "cron", "email"] },
+          { "title": "Destinatarios", "url": "#", "tags": ["destinatarios", "correo", "lista"] }
+        ]
+      },
+      { "title": "Plantillas de informe", "url": "#", "tags": ["plantillas", "templates", "reportes"] }
+    ]
+  },
+  {
+    "title": "Estadísticas",
+    "tags": ["estadisticas", "analitica", "kpi", "indicadores"],
+    "children": [
+      {
+        "title": "Rendimiento de equipos",
+        "tags": ["rendimiento", "equipos", "kpi"],
+        "children": [
+          { "title": "Eficiencia energética", "url": "#", "tags": ["eficiencia-energetica", "energia", "consumo"] },
+          { "title": "Tiempos de operación", "url": "#", "tags": ["tiempos", "operacion", "uptime"] },
+          { "title": "Paradas no programadas", "url": "#", "tags": ["paradas", "no-programadas", "downtime"] }
+        ]
+      },
+      {
+        "title": "Disponibilidad del sistema",
+        "tags": ["disponibilidad", "sla", "uptime"],
+        "children": [
+          { "title": "Por unidad", "url": "#", "tags": ["unidad", "kpi", "disponibilidad"] },
+          { "title": "Por zona o planta", "url": "#", "tags": ["zona", "planta", "disponibilidad"] },
+          { "title": "Promedios generales", "url": "#", "tags": ["promedios", "resumen", "indicadores"] }
+        ]
+      },
+      {
+        "title": "Mantenimiento predictivo",
+        "tags": ["predictivo", "mantenimiento", "ia", "pronostico"],
+        "children": [
+          { "title": "Frecuencia de fallos", "url": "#", "tags": ["fallos", "frecuencia", "mtbf"] },
+          { "title": "Vida útil estimada", "url": "#", "tags": ["vida-util", "estimacion", "degradacion"] },
+          { "title": "Alertas de mantenimiento", "url": "#", "tags": ["alertas", "mantenimiento", "predictivo"] }
+        ]
+      },
+      {
+        "title": "Estadísticas de integración",
+        "tags": ["integracion", "sensores", "conexion"],
+        "children": [
+          { "title": "Estado de conexión de sensores", "url": "#", "tags": ["conexion", "sensores", "estado"] },
+          { "title": "Sincronización de datos", "url": "#", "tags": ["sincronizacion", "datos", "latencia"] },
+          { "title": "Errores de comunicación", "url": "#", "tags": ["errores", "comunicacion", "fallos"] }
+        ]
+      },
+      {
+        "title": "Comparativas de flotas",
+        "tags": ["comparativas", "flotas", "benchmark"],
+        "children": [
+          { "title": "Rendimiento entre unidades", "url": "#", "tags": ["rendimiento", "comparativa", "unidades"] },
+          { "title": "Consumo total", "url": "#", "tags": ["consumo", "energia", "total"] },
+          { "title": "Desviaciones operativas", "url": "#", "tags": ["desviaciones", "operacion", "anomalias"] }
+        ]
+      },
+      {
+        "title": "Análisis de eficiencia global",
+        "tags": ["eficiencia", "oee", "mejora"],
+        "children": [
+          { "title": "Pérdidas de rendimiento", "url": "#", "tags": ["perdidas", "rendimiento", "oee"] },
+          { "title": "Factores externos", "url": "#", "tags": ["factores", "externos", "contexto"] },
+          { "title": "Mejora continua", "url": "#", "tags": ["mejora-continua", "kaizen", "optimizacion"] }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Usuarios",
+    "tags": ["usuarios", "gestion", "accesos", "permisos"],
+    "children": [
+      { "title": "Listar usuarios", "url": "#", "tags": ["listar", "usuarios", "tabla"] },
+      { "title": "Gestionar usuarios", "url": "#", "tags": ["gestionar", "usuarios", "crud"] },
+      { "title": "Nuevo usuario", "url": "#", "tags": ["nuevo", "usuario", "alta"] },
+      { "title": "Nuevo grupo de usuarios", "url": "#", "tags": ["nuevo", "grupo", "usuarios", "alta"] },
+      { "title": "Gestionar grupos de usuarios", "url": "#", "tags": ["gestionar", "grupos", "perfiles"] },
+      { "title": "Roles y permisos", "url": "#", "tags": ["roles", "permisos", "rbac"] }
+    ]
+  },
+  {
+    "title": "Configuraciones",
+    "tags": ["configuraciones", "ajustes", "sistema"],
+    "children": [
+      {
+        "title": "Parámetros del sistema",
+        "tags": ["parametros", "sistema", "config"],
+        "children": [
+          {
+            "title": "Conectividad",
+            "tags": ["conectividad", "red", "api"],
+            "children": [
+              { "title": "Servidores y endpoints", "url": "#", "tags": ["servidores", "endpoints", "api"] },
+              { "title": "Claves o tokens de acceso", "url": "#", "tags": ["tokens", "claves", "credenciales"] },
+              { "title": "Intervalos de actualización de datos", "url": "#", "tags": ["intervalos", "actualizacion", "polling"] }
+            ]
+          },
+          {
+            "title": "Gestión de logs",
+            "tags": ["logs", "registro", "auditoria"],
+            "children": [
+              { "title": "Registro de eventos del sistema", "url": "#", "tags": ["eventos", "sistema", "logs"] },
+              { "title": "Nivel de detalle (info, advertencia, error)", "url": "#", "tags": ["nivel-detalle", "trazas", "debug"] }
+            ]
+          },
+          {
+            "title": "Sincronización de datos",
+            "tags": ["sincronizacion", "batch", "latencia"],
+            "children": [
+              { "title": "Frecuencia de sincronización con dispositivos", "url": "#", "tags": ["frecuencia", "sincronizacion", "dispositivos"] },
+              { "title": "Retrasos permitidos en transmisión", "url": "#", "tags": ["retrasos", "transmision", "latencia"] },
+              { "title": "Reintentos automáticos de conexión", "url": "#", "tags": ["reintentos", "conexion", "tolerancia-a-fallos"] }
+            ]
+          },
+          {
+            "title": "Notificaciones del sistema",
+            "tags": ["notificaciones", "alertas", "sistema"],
+            "children": [
+              { "title": "Configurar notificaciones", "url": "#", "tags": ["configurar", "notificaciones", "preferencias"] },
+              { "title": "Ver notificaciones", "url": "#", "tags": ["notificaciones", "bandeja", "listar"] },
+              { "title": "Notificaciones administrativas", "url": "#", "tags": ["notificaciones", "administrativas", "avisos"] },
+              { "title": "Historial de notificaciones", "url": "#", "tags": ["historial", "notificaciones", "logs"] }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Integraciones",
+        "tags": ["integraciones", "api", "etl"],
+        "children": [
+          { "title": "Importar datos desde otros sistemas", "url": "#", "tags": ["importar", "etl", "ingesta"] },
+          { "title": "Enviar datos a sistemas externos", "url": "#", "tags": ["exportar", "api", "webhook"] },
+          { "title": "Revisar historial de integraciones", "url": "#", "tags": ["historial", "integraciones", "logs"] },
+          { "title": "Configurar credenciales o endpoints", "url": "#", "tags": ["credenciales", "endpoints", "config"] }
+        ]
+      },
+      {
+        "title": "Parada de módulos",
+        "tags": ["parada", "modulos", "mantenimiento"],
+        "children": [
+          { "title": "Agendar mantenimiento de módulo", "url": "#", "tags": ["agendar", "mantenimiento", "modulo"] },
+          { "title": "Suspender módulo temporalmente", "url": "#", "tags": ["suspender", "modulo", "pausa"] },
+          { "title": "Reactivar módulo", "url": "#", "tags": ["reactivar", "modulo", "reinicio"] }
+        ]
+      },
+      {
+        "title": "Alarmas y notificaciones",
+        "tags": ["alarmas", "notificaciones", "umbrales"],
+        "children": [
+          { "title": "Umbrales de alarma", "url": "#", "tags": ["umbrales", "alarmas", "threshold"] },
+          { "title": "Tipos de notificación", "url": "#", "tags": ["tipos", "notificaciones", "canales"] },
+          { "title": "Contactos de alerta", "url": "#", "tags": ["contactos", "alerta", "destinatarios"] }
+        ]
+      },
+      {
+        "title": "Preferencias de interfaz",
+        "tags": ["preferencias", "ui", "tema"],
+        "children": [
+          { "title": "Tema visual", "url": "#", "tags": ["tema", "oscuro", "claro"] },
+          { "title": "Privacidad", "url": "#", "tags": ["privacidad", "datos", "consentimiento"] }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Registros del Sistema",
+    "tags": ["registros", "logs", "auditoria"],
+    "children": [
+      { "title": "Eventos recientes", "url": "#", "tags": ["eventos", "recientes", "logs"] },
+      { "title": "Errores y alertas", "url": "#", "tags": ["errores", "alertas", "criticos"] },
+      {
+        "title": "Auditoría",
+        "tags": ["auditoria", "cumplimiento", "trazabilidad"],
+        "children": [
+          { "title": "Accesos de usuario", "url": "#", "tags": ["accesos", "usuarios", "login"] },
+          { "title": "Cambios de configuración", "url": "#", "tags": ["cambios", "configuracion", "versionado"] },
+          { "title": "Operaciones críticas", "url": "#", "tags": ["operaciones", "criticas", "control"] }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Soporte",
+    "tags": ["soporte", "ayuda", "documentacion"],
+    "children": [
+      {
+        "title": "Centro de ayuda",
+        "tags": ["faq", "ayuda", "guias"],
+        "children": [
+          { "title": "Preguntas frecuentes (FAQ)", "url": "#", "tags": ["faq", "preguntas", "respuestas"] },
+          { "title": "Guías paso a paso", "url": "#", "tags": ["guias", "paso-a-paso", "tutorial"] },
+          { "title": "Solución de problemas comunes", "url": "#", "tags": ["solucion", "problemas", "troubleshooting"] }
+        ]
+      },
+      {
+        "title": "Documentación técnica",
+        "tags": ["documentacion", "tecnica", "manuales"],
+        "children": [
+          { "title": "Manual del sistema", "url": "#", "tags": ["manual", "usuario", "documentacion"] },
+          { "title": "Especificaciones de API", "url": "#", "tags": ["api", "especificaciones", "swagger"] },
+          { "title": "Registro de versiones (changelog)", "url": "#", "tags": ["changelog", "versiones", "lanzamientos"] }
+        ]
+      },
+      {
+        "title": "Contacto y asistencia",
+        "tags": ["contacto", "asistencia", "soporte"],
+        "children": [
+          { "title": "Enviar solicitud de soporte", "url": "#", "tags": ["ticket", "soporte", "formulario"] },
+          { "title": "Chat con soporte técnico", "url": "#", "tags": ["chat", "soporte", "tiempo-real"] },
+          { "title": "Seguimiento de tickets", "url": "#", "tags": ["tickets", "seguimiento", "estado"] }
+        ]
+      },
+      {
+        "title": "Actualizaciones del sistema",
+        "tags": ["actualizaciones", "versiones", "release"],
+        "children": [
+          { "title": "Notas de actualización", "url": "#", "tags": ["notas", "release", "detalles"] },
+          { "title": "Historial de versiones", "url": "#", "tags": ["historial", "versiones", "cambios"] },
+          { "title": "Estado del servidor", "url": "#", "tags": ["estado", "servidor", "uptime"] }
+        ]
+      },
+      {
+        "title": "Asistente virtual",
+        "tags": ["asistente", "virtual", "chatbot"],
+        "children": [
+          { "title": "Consultar información técnica", "url": "#", "tags": ["consulta", "tecnica", "kb"] },
+          { "title": "Obtener ayuda inmediata", "url": "#", "tags": ["ayuda", "inmediata", "chatbot"] },
+          { "title": "Derivar casos al soporte humano", "url": "#", "tags": ["derivar", "humano", "soporte"] }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Cerrar sesión",
+    "url": "#",
+    "tags": ["cerrar-sesion", "logout", "salir"]
+  }
+]

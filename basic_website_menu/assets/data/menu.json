@@ -32,27 +32,6 @@
         ]
     },
     {
-        "title": "Settings",
-        "url": "#",
-        "tags": [
-            "settings",
-            "administer",
-            "manage",
-            "maintenance"
-        ],
-        "children": [
-            {
-                "title": "Main menu",
-                "url": "menu-manager.php",
-                "tags": [
-                    "menu",
-                    "options",
-                    "structure"
-                ]
-            }
-        ]
-    },
-    {
         "title": "For your website",
         "url": "#",
         "tags": [
@@ -95,6 +74,27 @@
                             "JSON"
                         ]
                     }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Settings",
+        "url": "#",
+        "tags": [
+            "settings",
+            "administer",
+            "manage",
+            "maintenance"
+        ],
+        "children": [
+            {
+                "title": "Main menu",
+                "url": "menu-manager.php",
+                "tags": [
+                    "menu",
+                    "options",
+                    "structure"
                 ]
             }
         ]
