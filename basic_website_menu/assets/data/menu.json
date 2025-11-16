@@ -1,0 +1,102 @@
+[
+    {
+        "title": "About...",
+        "url": "#",
+        "tags": [
+            "what is",
+            "smart small things",
+            "concept",
+            "about"
+        ],
+        "children": [
+            {
+                "title": "What it is",
+                "url": "#",
+                "tags": [
+                    "what is",
+                    "smart small things",
+                    "concept",
+                    "about"
+                ]
+            },
+            {
+                "title": "Who we are",
+                "url": "#",
+                "tags": [
+                    "who we are",
+                    "smart small things",
+                    "concept",
+                    "about"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Settings",
+        "url": "#",
+        "tags": [
+            "settings",
+            "administer",
+            "manage",
+            "maintenance"
+        ],
+        "children": [
+            {
+                "title": "Main menu",
+                "url": "menu-manager.php",
+                "tags": [
+                    "menu",
+                    "options",
+                    "structure"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "For your website",
+        "url": "#",
+        "tags": [
+            "websites",
+            "modules for websites",
+            "code for websites",
+            "website parts",
+            "website resources"
+        ],
+        "children": [
+            {
+                "title": "Responsive menu",
+                "url": "#",
+                "tags": [
+                    "responsive menu",
+                    "dynamic menu",
+                    "menu"
+                ],
+                "children": [
+                    {
+                        "title": "Responsive module",
+                        "url": "#",
+                        "tags": [
+                            "responsive menu",
+                            "responsive module",
+                            "main menu",
+                            "menu"
+                        ]
+                    },
+                    {
+                        "title": "Menu editor",
+                        "url": "#",
+                        "tags": [
+                            "responsive menu",
+                            "responsive module",
+                            "main menu",
+                            "menu",
+                            "menu editor",
+                            "editor",
+                            "JSON"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

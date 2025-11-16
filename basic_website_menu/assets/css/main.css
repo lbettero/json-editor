@@ -1,0 +1,127 @@
+:root {
+	--brand-navy: #1C2B4D;
+	--brand-teal: #2A8AC9;
+	--brand-teal-dark: #0868a7;
+	--brand-light: #FFFFFF;
+}
+
+/* Base palette */
+.bg-brand-navy { background-color: var(--brand-navy); }
+.bg-brand-light { background-color: var(--brand-light); }
+.bg-brand-teal { background-color: var(--brand-teal); }
+.text-brand-teal { color: var(--brand-teal); }
+.text-brand-light { color: var(--brand-light); }
+.link-brand { color: var(--brand-teal); }
+.link-brand:hover { color: var(--brand-teal-dark); }
+.border-brand-teal { border-color: var(--brand-teal); }
+
+/* Global typography */
+body {
+	background-color: var(--brand-light);
+	color: var(--brand-navy);
+	font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+	font-weight: 400;
+	line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 500;
+}
+
+button, input, nav, a {
+	font-family: inherit;
+}
+
+/* Header and footer with light text */
+header,
+footer {
+	color: var(--brand-light);
+}
+
+/* Header */
+header {
+	background-color: rgba(var(--brand-light), 0.9);
+	color: var(--brand-navy);
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+}
+
+#divhead {
+	background-color: var(--brand-navy);
+	color: var(--brand-light);
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+}
+
+/* Menu */
+nav {
+	background-color: rgba(var(--brand-light), 0.9);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border-bottom: none;
+	position: sticky;
+	top: 0;
+	z-index: 50;
+	color: var(--brand-navy);
+}
+
+/* Links */
+nav a {
+	color: var(--brand-navy);
+	text-decoration: none;
+	transition: color 0.3s ease;
+}
+
+nav a:hover {
+	color: var(--brand-teal-dark);
+}
+
+/* Buttons */
+button.bg-brand-teal:hover {
+	background-color: var(--brand-navy);
+}
+
+button.bg-brand-navy:hover {
+	background-color: var(--brand-teal-dark);
+}
+
+/* ================================
+   FLOATING ARROWS – MENU EDITOR
+   ================================ */
+
+.scroll-arrow {
+	position: fixed;
+	right: 20px;
+	width: 52px;
+	height: 52px;
+	padding: 6px;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 999;
+	transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.scroll-arrow:hover {
+	transform: scale(1.08);
+	background: rgba(255, 255, 255, 1);
+}
+
+.arrow-icon {
+	width: 40px;
+	height: 40px;
+	display: block;
+}
+
+/* Positions */
+#scrollUp {
+	bottom: 100px;
+}
+
+#scrollDown {
+	bottom: 30px;
+}
