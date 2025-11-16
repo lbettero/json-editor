@@ -8,6 +8,9 @@
             "concept",
             "about"
         ],
+        "header": true,
+        "footer": false,
+        "shortcut": false,
         "children": [
             {
                 "title": "What it is",
@@ -17,7 +20,10 @@
                     "smart small things",
                     "concept",
                     "about"
-                ]
+                ],
+                "header": true,
+                "footer": false,
+                "shortcut": false
             },
             {
                 "title": "Who we are",
@@ -27,7 +33,10 @@
                     "smart small things",
                     "concept",
                     "about"
-                ]
+                ],
+                "header": true,
+                "footer": false,
+                "shortcut": false
             }
         ]
     },
@@ -41,6 +50,9 @@
             "website parts",
             "website resources"
         ],
+        "header": true,
+        "footer": false,
+        "shortcut": false,
         "children": [
             {
                 "title": "Responsive menu",
@@ -50,6 +62,9 @@
                     "dynamic menu",
                     "menu"
                 ],
+                "header": true,
+                "footer": false,
+                "shortcut": false,
                 "children": [
                     {
                         "title": "Responsive module",
@@ -59,7 +74,10 @@
                             "responsive module",
                             "main menu",
                             "menu"
-                        ]
+                        ],
+                        "header": true,
+                        "footer": false,
+                        "shortcut": false
                     },
                     {
                         "title": "Menu editor",
@@ -72,7 +90,10 @@
                             "menu editor",
                             "editor",
                             "JSON"
-                        ]
+                        ],
+                        "header": true,
+                        "footer": false,
+                        "shortcut": false
                     }
                 ]
             }
@@ -87,6 +108,9 @@
             "manage",
             "maintenance"
         ],
+        "header": true,
+        "footer": false,
+        "shortcut": false,
         "children": [
             {
                 "title": "Main menu",
@@ -95,7 +119,10 @@
                     "menu",
                     "options",
                     "structure"
-                ]
+                ],
+                "header": true,
+                "footer": false,
+                "shortcut": false
             }
         ]
     }

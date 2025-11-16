@@ -1,35 +1,40 @@
 /**
- * MENU EDITOR – JS MODULE
- * Collapse/expand, add/remove items, reorder (move up/down/indent/outdent),
- * dynamic reindex of name="" attributes, hierarchy levels, etc.
+ * MENU EDITOR – JS MODULE (UPDATED FOR GLOBAL FIELDS)
+ * ---------------------------------------------------
+ * - Collapse/expand items
+ * - Add/remove/move/indent/outdent menu items
+ * - Dynamic reindex of name="" attributes
+ * - NEW: Add/remove global fields
+ * - NEW: Propagation rigid of global fields to all items
  */
 
 (function () {
 
-    /**
-     * Returns the next index for a new item in the given container.
-     * Uses the number of existing .menu-item elements (DOM order).
-     */
+    // ---------------------------------------------------------------
+    // UTILITIES
+    // ---------------------------------------------------------------
+
     function getNextIndex(container) {
         return container.querySelectorAll(':scope > .menu-item').length;
     }
 
-    /**
-     * Creates HTML for a new empty menu item.
-     */
     function createItemHTML(prefix, index, level) {
-        const blockName   = prefix + '[' + index + ']';
-        const childPrefix = blockName + '[children]';
+        const blockName   = `${prefix}[${index}]`;
+        const childPrefix = `${blockName}[children]`;
         const canAddChild = level < 2;
 
+        // Global fields (cloned later)
+        const globalFieldsHTML = buildGlobalFieldsHTML(blockName);
+
         return `
-        <div class="menu-item border border-gray-300 rounded-md p-4 my-4 bg-white shadow-sm" data-level="${level}">
+        <div class="menu-item border border-gray-300 rounded-md p-4 my-4 bg-white shadow-sm" 
+             data-level="${level}">
+
             <div class="menu-item-header flex items-center justify-between gap-2">
-                <h3 class="text-lg font-semibold text-gray-700">
-                    New item (level ${level + 1})
-                </h3>
+                <h3 class="text-lg font-semibold text-gray-700">New item (level ${level+1})</h3>
+
                 <button type="button"
-                        class="btn-toggle-item inline-flex items-center gap-1 text-xs px-2 py-1 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100">
+                        class="btn-toggle-item inline-flex items-center gap-1 text-xs px-2 py-1 border rounded bg-gray-50">
                     <span class="toggle-label">Collapse</span>
                     <span class="toggle-icon">▾</span>
                 </button>
@@ -38,302 +43,388 @@
             <div class="menu-item-body mt-4">
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Title</label>
-                    <input type="text"
-                           name="${blockName}[title]"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200">
+                    <label class="block text-sm font-medium text-gray-600">Title</label>
+                    <input type="text" name="${blockName}[title]"
+                           class="w-full border rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">URL</label>
-                    <input type="text"
-                           name="${blockName}[url]"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200">
+                    <label class="block text-sm font-medium text-gray-600">URL</label>
+                    <input type="text" name="${blockName}[url]"
+                           class="w-full border rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Tags (comma-separated)</label>
-                    <input type="text"
-                           name="${blockName}[tags]"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200">
+                    <label class="block text-sm font-medium text-gray-600">Tags</label>
+                    <input type="text" name="${blockName}[tags]"
+                           class="w-full border rounded px-3 py-2">
+                </div>
+
+                <!-- GLOBAL FIELDS -->
+                <div class="global-fields-per-item mt-4 p-3 border rounded bg-blue-50"
+                     data-block="${blockName}">
+                     ${globalFieldsHTML}
                 </div>
 
                 <div class="mt-2 flex flex-wrap gap-2 menu-actions">
+                    <button type="button" class="btn-action btn-move-up px-2 py-1 border text-xs">↑ Move up</button>
+                    <button type="button" class="btn-action btn-move-down px-2 py-1 border text-xs">↓ Move down</button>
+                    <button type="button" class="btn-action btn-indent px-2 py-1 border text-xs">→ Indent</button>
+                    <button type="button" class="btn-action btn-outdent px-2 py-1 border text-xs">← Outdent</button>
 
-                    <button type="button"
-                            class="btn-action btn-move-up inline-flex items-center gap-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50">
-                        ↑ Move up
-                    </button>
-
-                    <button type="button"
-                            class="btn-action btn-move-down inline-flex items-center gap-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50">
-                        ↓ Move down
-                    </button>
-
-                    <button type="button"
-                            class="btn-action btn-indent inline-flex items-center gap-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50">
-                        → Indent
-                    </button>
-
-                    <button type="button"
-                            class="btn-action btn-outdent inline-flex items-center gap-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50">
-                        ← Outdent
-                    </button>
-
-                    <button type="button"
-                            class="btn-action btn-add-sibling inline-flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50">
-                        <img src="/assets/icons/additem.png" alt="Add item" class="w-4 h-4">
-                        Add new item
+                    <button type="button" class="btn-action btn-add-sibling px-3 py-1 border text-sm">
+                        <img src="/assets/icons/additem.png" class="w-4 h-4"> Add new item
                     </button>
 
                     ${canAddChild ? `
-                    <button type="button"
-                            class="btn-action btn-add-child inline-flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50">
-                        <img src="/assets/icons/additem.png" alt="Add subitem" class="w-4 h-4">
-                        Add subitem
+                    <button type="button" class="btn-action btn-add-child px-3 py-1 border text-sm">
+                        <img src="/assets/icons/additem.png" class="w-4 h-4"> Add subitem
                     </button>` : ''}
 
                     <button type="button"
-                            class="btn-action btn-delete-item inline-flex items-center gap-1 px-3 py-1 border border-red-300 rounded-md text-sm bg-red-50 hover:bg-red-100 text-red-700">
-                        <img src="/assets/icons/deleteitem.png" alt="Delete item" class="w-4 h-4">
-                        Remove item
+                            class="btn-action btn-delete-item px-3 py-1 border text-sm bg-red-50 text-red-700">
+                        <img src="/assets/icons/deleteitem.png" class="w-4 h-4"> Remove
                     </button>
                 </div>
 
-                <div class="menu-children mt-4 pl-4 border-l border-dashed border-gray-300"
-                     data-name-prefix="${childPrefix.replace(/"/g, '&quot;')}"
-                     data-level="${level + 1}">
+                <div class="menu-children mt-4 pl-4 border-l border-dashed"
+                     data-name-prefix="${childPrefix}"
+                     data-level="${level+1}">
                 </div>
             </div>
         </div>`;
     }
 
-    /**
-     * Collapse/expand a single item.
-     */
+    // ---------------------------------------------------------------
+    // GLOBAL FIELDS MANAGEMENT
+    // ---------------------------------------------------------------
+
+    function buildGlobalFieldsHTML(blockName) {
+        const container = document.getElementById("globalFieldsContainer");
+        if (!container) return "";
+
+        const fields = container.querySelectorAll(".global-field-item");
+        let html = "";
+
+        fields.forEach((row) => {
+            const fname  = row.querySelector('[name="globalFields[name][]"]').value.trim();
+            const ftype  = row.querySelector('[name="globalFields[type][]"]').value;
+            const fvalue = row.querySelector('[name="globalFields[default][]"]').value;
+
+            if (!fname) return;
+
+            html += `
+                <div class="mb-2 global-field-row" data-field="${fname}">
+                    <label class="text-xs font-medium text-gray-700">
+                        ${fname}
+                        <span class="text-gray-400">(${ftype})</span>
+                    </label>
+                    
+                    ${ftype === 'boolean'
+                        ? `<select name="${blockName}[${fname}]" class="border rounded px-2 py-1 text-sm">
+                               <option value="true"  ${fvalue=="true"?"selected":""}>true</option>
+                               <option value="false" ${fvalue=="false"?"selected":""}>false</option>
+                           </select>`
+                        : `<input type="text" 
+                                   name="${blockName}[${fname}]"
+                                   value="${escapeHtml(fvalue)}"
+                                   class="w-full border rounded px-2 py-1 text-sm">`
+                    }
+                </div>`;
+        });
+
+        return html;
+    }
+
+    function propagateGlobalFieldsToAllItems() {
+        const allItems = document.querySelectorAll(".global-fields-per-item");
+        allItems.forEach(block => {
+            const blockName = block.dataset.block;
+            block.innerHTML = buildGlobalFieldsHTML(blockName);
+        });
+    }
+
+    function escapeHtml(txt) {
+        return txt.replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;");
+    }
+
+    // ---------------------------------------------------------------
+    // COLLAPSE / EXPAND
+    // ---------------------------------------------------------------
+
     function toggleItem(item) {
         const body  = item.querySelector(':scope > .menu-item-body');
-        const label = item.querySelector(':scope .btn-toggle-item .toggle-label');
-        const icon  = item.querySelector(':scope .btn-toggle-item .toggle-icon');
-
-        if (!body || !label || !icon) return;
+        const label = item.querySelector('.toggle-label');
+        const icon  = item.querySelector('.toggle-icon');
 
         const isHidden = body.classList.toggle('hidden');
         if (isHidden) {
-            label.textContent = 'Expand';
-            icon.textContent  = '▸';
+            label.textContent = "Expand";
+            icon.textContent  = "▸";
         } else {
-            label.textContent = 'Collapse';
-            icon.textContent  = '▾';
+            label.textContent = "Collapse";
+            icon.textContent  = "▾";
         }
     }
 
-    /**
-     * Updates data-level attributes based on DOM hierarchy (root = 0).
-     */
+    // ---------------------------------------------------------------
+    // LEVEL + NAME REBUILD
+    // ---------------------------------------------------------------
+
     function updateLevels() {
-        const root = document.getElementById('menuRoot');
+        const root = document.getElementById("menuRoot");
         if (!root) return;
 
-        function walk(container, level) {
-            container.dataset.level = String(level);
-            const items = container.querySelectorAll(':scope > .menu-item');
+        function walk(c, level) {
+            c.dataset.level = String(level);
+
+            const items = c.querySelectorAll(':scope > .menu-item');
             items.forEach(item => {
                 item.dataset.level = String(level);
-                const childrenContainer = item.querySelector(':scope > .menu-item-body > .menu-children');
-                if (childrenContainer) {
-                    walk(childrenContainer, level + 1);
-                }
+
+                const kids = item.querySelector(':scope > .menu-item-body > .menu-children');
+                if (kids) walk(kids, level + 1);
             });
         }
 
         walk(root, 0);
     }
 
-    /**
-     * Rebuilds all input name attributes to reflect the current DOM structure
-     * before sending to PHP.
-     */
     function rebuildNames() {
-        const root = document.getElementById('menuRoot');
+        const root = document.getElementById("menuRoot");
         if (!root) return;
 
         function walk(container, prefix) {
             const items = container.querySelectorAll(':scope > .menu-item');
             items.forEach((item, index) => {
-                const blockName = prefix + '[' + index + ']';
 
-                const titleInput = item.querySelector('input[name$="[title]"]');
-                if (titleInput) titleInput.name = blockName + '[title]';
+                const blockName = `${prefix}[${index}]`;
 
-                const urlInput = item.querySelector('input[name$="[url]"]');
-                if (urlInput) urlInput.name = blockName + '[url]';
+                // Standard fields
+                const title = item.querySelector('input[name$="[title]"]');
+                if (title) title.name = `${blockName}[title]`;
 
-                const tagsInput = item.querySelector('input[name$="[tags]"]');
-                if (tagsInput) tagsInput.name = blockName + '[tags]';
+                const url = item.querySelector('input[name$="[url]"]');
+                if (url) url.name = `${blockName}[url]`;
 
-                const childrenContainer = item.querySelector(':scope > .menu-item-body > .menu-children');
-                if (childrenContainer) {
-                    const childPrefix = blockName + '[children]';
-                    childrenContainer.dataset.namePrefix = childPrefix;
-                    walk(childrenContainer, childPrefix);
+                const tags = item.querySelector('input[name$="[tags]"]');
+                if (tags) tags.name = `${blockName}[tags]`;
+
+                // Global fields
+                const globalBlock = item.querySelector(".global-fields-per-item");
+                if (globalBlock) {
+                    globalBlock.dataset.block = blockName;
+
+                    const fields = globalBlock.querySelectorAll("[data-field]");
+                    fields.forEach(f => {
+                        const fname = f.dataset.field;
+                        const input = f.querySelector("input,select");
+                        if (input) input.name = `${blockName}[${fname}]`;
+                    });
+                }
+
+                // Children
+                const kids = item.querySelector(':scope > .menu-item-body > .menu-children');
+                if (kids) {
+                    kids.dataset.namePrefix = `${blockName}[children]`;
+                    walk(kids, `${blockName}[children]`);
                 }
             });
         }
 
-        walk(root, 'menu');
+        walk(root, "menu");
     }
 
-    // ------------------------------------------------------------------
-    // EVENT LISTENER FOR ALL BUTTON ACTIONS
-    // ------------------------------------------------------------------
+    // ---------------------------------------------------------------
+    // EVENT HANDLERS
+    // ---------------------------------------------------------------
 
-    document.addEventListener('click', function (e) {
+    document.addEventListener("click", function (e) {
 
-        // Collapse/expand item
-        const toggleBtn = e.target.closest('.btn-toggle-item');
+        // Collapse/expand
+        const toggleBtn = e.target.closest(".btn-toggle-item");
         if (toggleBtn) {
-            const item = toggleBtn.closest('.menu-item');
-            if (item) toggleItem(item);
+            const item = toggleBtn.closest(".menu-item");
+            toggleItem(item);
             return;
         }
 
-        // Add sibling item
-        const addSiblingBtn = e.target.closest('.btn-add-sibling');
+        // Add sibling
+        const addSiblingBtn = e.target.closest(".btn-add-sibling");
         if (addSiblingBtn) {
-            const item      = addSiblingBtn.closest('.menu-item');
-            const container = item.parentElement;
-            const prefix    = container.dataset.namePrefix || 'menu';
-            const level     = parseInt(container.dataset.level || '0', 10);
+            const item = addSiblingBtn.closest(".menu-item");
+            const parent = item.parentElement;
+            const prefix = parent.dataset.namePrefix;
+            const level  = parseInt(parent.dataset.level || "0");
 
-            const newIndex = getNextIndex(container);
-            const html     = createItemHTML(prefix, newIndex, level);
+            const newIndex = getNextIndex(parent);
+            const html = createItemHTML(prefix, newIndex, level);
 
-            item.insertAdjacentHTML('afterend', html);
+            item.insertAdjacentHTML("afterend", html);
             updateLevels();
+            propagateGlobalFieldsToAllItems();
             return;
         }
 
-        // Add child item
-        const addChildBtn = e.target.closest('.btn-add-child');
+        // Add child
+        const addChildBtn = e.target.closest(".btn-add-child");
         if (addChildBtn) {
-            const item      = addChildBtn.closest('.menu-item');
-            const container = item.querySelector(':scope > .menu-item-body > .menu-children');
-            if (!container) return;
+            const item = addChildBtn.closest(".menu-item");
+            const kids = item.querySelector(":scope > .menu-item-body > .menu-children");
 
-            const prefix = container.dataset.namePrefix || 'menu';
-            const level  = parseInt(container.dataset.level || '0', 10);
+            const prefix = kids.dataset.namePrefix;
+            const level  = parseInt(kids.dataset.level || "0");
 
-            const newIndex = getNextIndex(container);
-            const html     = createItemHTML(prefix, newIndex, level);
+            const newIndex = getNextIndex(kids);
+            const html = createItemHTML(prefix, newIndex, level);
 
-            container.insertAdjacentHTML('beforeend', html);
+            kids.insertAdjacentHTML("beforeend", html);
             updateLevels();
+            propagateGlobalFieldsToAllItems();
             return;
         }
 
         // Delete item
-        const deleteBtn = e.target.closest('.btn-delete-item');
-        if (deleteBtn) {
-            const item = deleteBtn.closest('.menu-item');
-            if (item && confirm('Remove this item and all its subitems?')) {
+        const delBtn = e.target.closest(".btn-delete-item");
+        if (delBtn) {
+            const item = delBtn.closest(".menu-item");
+            if (confirm("Remove this item and all subitems?")) {
                 item.remove();
                 updateLevels();
             }
             return;
         }
 
-        // Add top-level item
-        const addRootBtn = e.target.closest('.btn-add-root');
-        if (addRootBtn) {
-            const container = document.getElementById('menuRoot');
-            const prefix    = container.dataset.namePrefix || 'menu';
-            const level     = parseInt(container.dataset.level || '0', 10);
+        // Add root
+        const addRoot = e.target.closest(".btn-add-root");
+        if (addRoot) {
+            const root = document.getElementById("menuRoot");
+            const prefix = root.dataset.namePrefix;
 
-            const newIndex = getNextIndex(container);
-            const html     = createItemHTML(prefix, newIndex, level);
+            const newIndex = getNextIndex(root);
+            const html     = createItemHTML(prefix, newIndex, 0);
 
-            container.insertAdjacentHTML('beforeend', html);
+            root.insertAdjacentHTML("beforeend", html);
             updateLevels();
+            propagateGlobalFieldsToAllItems();
             return;
         }
 
         // Move up
-        const moveUpBtn = e.target.closest('.btn-move-up');
-        if (moveUpBtn) {
-            const item = moveUpBtn.closest('.menu-item');
-            if (!item) return;
+        const moveUp = e.target.closest(".btn-move-up");
+        if (moveUp) {
+            const item = moveUp.closest(".menu-item");
             const prev = item.previousElementSibling;
-            if (prev && prev.classList.contains('menu-item')) {
-                item.parentElement.insertBefore(item, prev);
-                updateLevels();
-            }
+
+            if (prev) prev.before(item);
+            updateLevels();
             return;
         }
 
         // Move down
-        const moveDownBtn = e.target.closest('.btn-move-down');
-        if (moveDownBtn) {
-            const item = moveDownBtn.closest('.menu-item');
-            if (!item) return;
+        const moveDown = e.target.closest(".btn-move-down");
+        if (moveDown) {
+            const item = moveDown.closest(".menu-item");
             const next = item.nextElementSibling;
-            if (next && next.classList.contains('menu-item')) {
-                item.parentElement.insertBefore(next, item);
-                updateLevels();
-            }
+
+            if (next) next.after(item);
+            updateLevels();
             return;
         }
 
-        // Indent (become child of previous sibling)
-        const indentBtn = e.target.closest('.btn-indent');
-        if (indentBtn) {
-            const item = indentBtn.closest('.menu-item');
-            if (!item) return;
+        // Indent (make child)
+        const indent = e.target.closest(".btn-indent");
+        if (indent) {
+            const item = indent.closest(".menu-item");
             const prev = item.previousElementSibling;
-            if (!prev || !prev.classList.contains('menu-item')) return;
 
-            const childrenContainer = prev.querySelector(':scope > .menu-item-body > .menu-children');
-            if (!childrenContainer) return;
+            if (!prev) return;
 
-            childrenContainer.appendChild(item);
+            const kids = prev.querySelector(":scope > .menu-item-body > .menu-children");
+            kids.appendChild(item);
 
             updateLevels();
             return;
         }
 
-        // Outdent (move one level up)
-        const outdentBtn = e.target.closest('.btn-outdent');
-        if (outdentBtn) {
-            const item = outdentBtn.closest('.menu-item');
-            if (!item) return;
+        // Outdent
+        const outdent = e.target.closest(".btn-outdent");
+        if (outdent) {
+            const item = outdent.closest(".menu-item");
+            const parentKids = item.parentElement;
+            const parentItem = parentKids.closest(".menu-item");
 
-            const parentChildren = item.parentElement;
-            const parentItem     = parentChildren.closest('.menu-item');
+            if (!parentItem) return;
 
-            if (!parentItem) return; // already at root
+            const grandKids = parentItem.parentElement;
+            grandKids.insertBefore(item, parentItem.nextElementSibling);
 
-            const grandParentChildren = parentItem.parentElement;
-            if (!grandParentChildren) return;
-
-            grandParentChildren.insertBefore(item, parentItem.nextElementSibling);
             updateLevels();
+            return;
+        }
+
+        // Remove global field
+        const rmGlobal = e.target.closest(".btn-remove-global-field");
+        if (rmGlobal) {
+            rmGlobal.closest(".global-field-item").remove();
+            propagateGlobalFieldsToAllItems();
             return;
         }
     });
 
-    // ------------------------------------------------------------------
-    // REBUILD NAMES ON SUBMIT
-    // ------------------------------------------------------------------
+    // ---------------------------------------------------------------
+    // FORM SUBMIT
+    // ---------------------------------------------------------------
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('menuEditorForm');
-        if (!form) return;
+    document.addEventListener("DOMContentLoaded", function () {
 
         updateLevels();
+        propagateGlobalFieldsToAllItems();
 
-        form.addEventListener('submit', function () {
-            rebuildNames();
-        });
+        const form = document.getElementById("menuEditorForm");
+        if (form) {
+            form.addEventListener("submit", function () {
+                rebuildNames();
+            });
+        }
+
+        // ADD GLOBAL FIELD BUTTON
+        const addGlobalBtn = document.getElementById("btnAddGlobalField");
+        if (addGlobalBtn) {
+            addGlobalBtn.addEventListener("click", function () {
+
+                const container = document.getElementById("globalFieldsContainer");
+                const row = document.createElement("div");
+
+                row.className = "global-field-item flex items-center gap-3 mb-2";
+                row.innerHTML = `
+                    <input type="text" class="border rounded px-2 py-1 text-sm w-40"
+                           name="globalFields[name][]" placeholder="newField">
+
+                    <select name="globalFields[type][]" class="border rounded px-2 py-1 text-sm">
+                        <option value="string">string</option>
+                        <option value="number">number</option>
+                        <option value="boolean">boolean</option>
+                        <option value="json">json</option>
+                    </select>
+
+                    <input type="text"
+                           class="border rounded px-2 py-1 text-sm flex-grow"
+                           name="globalFields[default][]" placeholder="default value">
+
+                    <button type="button"
+                            class="btn-remove-global-field text-red-600 text-xs px-2 py-1 border border-red-300 rounded">
+                        Remove
+                    </button>
+                `;
+
+                container.appendChild(row);
+                propagateGlobalFieldsToAllItems();
+            });
+        }
     });
 
 })();

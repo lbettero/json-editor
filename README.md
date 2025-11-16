@@ -1,54 +1,84 @@
-# 🧩 JSON Menu Editor — PHP + Alpine.js
+🧩 JSON Menu Editor — PHP + Alpine.js (v2.0.0)
 
-A lightweight and modular system for **loading, editing and saving multi-level menus** stored in a `menu.json` file.  
-Built with **PHP**, **Alpine.js** and **TailwindCSS**, this module provides a **visual menu editor**, JSON normalization and a safe saving workflow.
+A robust, modular and extensible system for loading, editing, validating and saving multi-level menus stored in a menu.json file.
+Built with PHP, Alpine.js and TailwindCSS, this module now includes a visual menu editor, global field system, type-aware metadata propagation, and a fully safe JSON-saving workflow.
 
-Ideal for dashboards, CMS-like panels, embedded UIs or any project that requires a dynamic menu system.
+Ideal for dashboards, CMS-like control panels, embedded UIs or any environment that requires a structured, metadata-rich dynamic menu.
 
----
+🗓️ Version History
+Version	Date	Description
+v1.0.0	Initial release	Basic menu JSON loading and rendering.
+v2.0.0	Current	Major update: Global Fields, rigid propagation, field types, updated editor UI, improved saving pipeline, and JSON normalization overhaul.
+✨ Highlights of Version 2.0.0
+🧬 1. Global Fields System (NEW)
 
-## ✨ Features
+Define fields that automatically apply to all menu items across all levels.
 
-### 📥 1. Load Menu From JSON
-- Reads `menu.json` from `/assets/data/`
-- Safe parsing with full error reporting
-- Automatic fallback if the file is invalid or missing
+Each field includes:
 
-### 📝 2. Visual Menu Editor (PHP + Alpine.js)
-- Create, edit and delete menu items
-- Add sibling items or nested children
-- Supports up to **3 levels** of depth
-- Drag-free, button-driven interaction
-- Auto-generated `name` attributes for nested arrays
-- Fully accessible HTML structure
+Field name
 
-### 🔧 3. JSON Normalization
-Implemented in `save-menu.php`:
+Field type (string, number, boolean, json)
 
-- Converts tag strings into arrays  
-- Removes empty or incomplete entries  
-- Recursively validates children  
-- Produces clean, minimal, consistent JSON  
-- Saves using `JSON_PRETTY_PRINT` and UTF-8  
+Default value
 
-### 💾 4. Save + Download Updated JSON
-After saving:
-- The user gets a success screen
-- A **Download menu.json** button is displayed
-- Error messages show technical details when needed
+Ability to remove fields dynamically
 
-### 🔍 5. Optional Advanced Search (Integration Ready)
-If used together with menu.js:
-- Accent-insensitive search  
-- Tokenized matching  
-- Ranking by relevance  
-- Tag inheritance  
+These fields are then shown inside every menu item of the editor.
 
----
+✔ Rigid propagation
 
-## 📁 Project Structure
+Every item always contains all global fields.
 
-```
+✔ Guidance message added
+
+Below the Global Fields section:
+
+“After adding or removing global fields, save the menu so that these fields appear in all items.”
+
+📝 2. Updated Visual Menu Editor
+
+Add/edit/remove menu items
+
+Add siblings and nested items
+
+Up to 3 levels
+
+Automatic name rebuilding for nested structures
+
+Global fields appear dynamically inside each item
+
+Enhanced layout and accessibility
+
+💾 3. Improved JSON Saving (save-menu.php)
+
+Now includes:
+
+Conversion of field values according to their type
+
+Application of Global Field schema to all items
+
+Removal of obsolete fields
+
+Normalization of tags
+
+Full recursive processing
+
+Pretty-printed JSON
+
+Success screen with Download menu.json button
+
+🧠 4. Architecture Improvements
+
+Safer parsing
+
+Cleaner PHP structure (functions, includes)
+
+Enhanced frontend integration with Alpine.js
+
+Item editor dynamically reacts to global field changes
+
+📁 Project Structure
 menu-json-editor/
 │
 ├── assets/
@@ -58,66 +88,69 @@ menu-json-editor/
 │   └── css/
 │       └── main.css
 │
+├── assets/js/
+│   ├── menu-editor.js      ← NEW v2.0.0
+│   ├── dashboard.js
+│   ├── menu.js
+│   └── menu-manager.js
+│
 ├── src/
 │   ├── includes/
 │   │   ├── header.php
 │   │   └── footer.php
 │   └── functions/
 │       ├── menu.php
-│       ├── menu-editor.php
-│       └── save-menu.php
+│       ├── menu-editor.php ← UPDATED v2.0.0
+│       └── save-menu.php   ← UPDATED v2.0.0
 │
 ├── menu-manager.php
 └── README.md
-```
 
----
+🚀 How to Run
 
-## 🚀 How to Run
+Start a PHP server:
 
-Start a PHP local server:
-
-```bash
 php -S localhost:8000
-```
+
 
 Open:
 
-```
 http://localhost:8000/menu-manager.php
-```
 
----
+🔄 Workflow (v2.0.0)
 
-## 🔄 Workflow
+menu.php loads JSON
 
-1. Load menu JSON → parsed by `menu.php`  
-2. Edit items visually (`menu-editor.php`)  
-3. Submit → normalized recursively (`save-menu.php`)  
-4. JSON saved to `/assets/data/menu.json`  
-5. Optional download of updated file  
+menu-editor.php displays items + global fields
 
----
+User edits both
 
-## 🧪 Validation and Safety
+Saving applies rigid schema enforcement
 
-✔ Input sanitized with `htmlspecialchars`  
-✔ JSON validated before saving  
-✔ Depth limited to 3 levels  
-✔ Friendly error reporting  
+JSON is normalized and written to file
 
----
+User may download updated menu.json
 
-## 📜 Requirements
+🧪 Validation & Safety
 
-- PHP 8+  
-- No database required  
-- Works standalone  
+✔ HTML sanitized
+✔ JSON validated
+✔ Field type casting
+✔ Rigid schema propagation
+✔ Error details shown clearly
 
----
+📜 Requirements
 
-## 👩‍💻 Author
+PHP 8+
+
+No database required
+
+Works on any hosting environment
+
+👩‍💻 Author
+
 Livia Pérez Bettero
 
-## 🤖 Technical Collaboration
+🤖 Technical Collaboration
+
 ChatGPT (OpenAI)
