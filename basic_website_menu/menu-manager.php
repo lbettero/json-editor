@@ -1,48 +1,84 @@
 <?php
-    // public/menu-manager.php
-    $page_title = "Gestor de Menu – SMART SMALL THINGS";
-
-    include __DIR__ . '/src/includes/header.php';
-
-    // Caminho para o editor do menu
-    $menuEditorPath = __DIR__ . '/src/functions/menu-editor.php';
+$page_title = 'JSON Explorer';
+include __DIR__ . '/src/includes/header.php';
 ?>
 
-<!-- ====================== CONTEÚDO PRINCIPAL ====================== -->
-<section id="inicio" class="py-8">
-    <div class="container mx-auto max-w-5xl px-4">
-        <h1 class="text-2xl font-bold mb-6">Gestor do Menu</h1>
-
-        <p class="mb-4 text-gray-700">
-            Aqui você pode visualizar e editar os itens do menu carregados a partir do arquivo 
-            <strong>menu.json</strong>.
-        </p>
-
-        <div class="p-4 border rounded-md bg-white shadow-sm">
-            <?php
-            if (file_exists($menuEditorPath)) {
-                include $menuEditorPath;
-            } else {
-                echo "<p class='text-red-600 font-semibold'>
-                        Erro: o arquivo menu-editor.php não foi encontrado em 
-                        <code>$menuEditorPath</code>.
-                    </p>";
-            }
-            ?>
+<main class="app-shell">
+    <section class="hero-card">
+        <div>
+            <p class="eyebrow">Local JSON workspace</p>
+            <h1>Understand and manage any JSON file</h1>
+            <p class="hero-copy">Load a JSON file, inspect its unique structure, manage its records and download the updated result. Your data never leaves this browser.</p>
         </div>
-    </div>
-</section>
+        <label class="upload-button" for="jsonFile">Choose JSON file</label>
+        <input id="jsonFile" type="file" accept="application/json,.json" hidden>
+    </section>
 
-<!-- ====================== SETAS FLUTUANTES ====================== -->
-<div id="scrollUp" class="scroll-arrow">
-    <img src="/assets/icons/setaup.png" alt="Subir" class="arrow-icon w-5 h-5">
-</div>
+    <div id="notice" class="notice" role="status" aria-live="polite">No JSON file loaded.</div>
 
-<div id="scrollDown" class="scroll-arrow">
-    <img src="/assets/icons/setadown.png" alt="Descer" class="arrow-icon w-5 h-5">
-</div>
+    <section id="workspace" class="workspace" hidden>
+        <div class="toolbar">
+            <div>
+                <span id="fileName" class="file-name"></span>
+                <span id="recordCount" class="record-count"></span>
+            </div>
+            <div class="toolbar-actions">
+                <label id="collectionLabel" hidden>
+                    Collection
+                    <select id="collectionSelect"></select>
+                </label>
+                <button id="downloadButton" class="button button-secondary" type="button">Download JSON</button>
+            </div>
+        </div>
 
-<!-- ====================== JAVASCRIPT ====================== -->
+        <nav class="tabs" aria-label="JSON views">
+            <button class="tab is-active" type="button" data-tab="structure">Unique structure</button>
+            <button class="tab" type="button" data-tab="records">Items</button>
+        </nav>
+
+        <section id="structurePanel" class="panel tab-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Schema overview</p>
+                    <h2>Unique data structure</h2>
+                </div>
+                <button id="expandStructure" class="text-button" type="button">Expand all</button>
+            </div>
+            <div id="structureTree" class="structure-tree"></div>
+        </section>
+
+        <section id="recordsPanel" class="panel tab-panel" hidden>
+            <div class="panel-heading records-heading">
+                <div>
+                    <p class="eyebrow">Data manager</p>
+                    <h2>Items</h2>
+                </div>
+                <div class="records-actions">
+                    <input id="recordSearch" type="search" placeholder="Search items..." aria-label="Search items">
+                    <button id="newRecordButton" class="button button-primary" type="button">New item</button>
+                </div>
+            </div>
+            <div id="recordsList" class="records-list"></div>
+        </section>
+    </section>
+</main>
+
+<dialog id="recordDialog" class="record-dialog">
+    <form id="recordForm" method="dialog">
+        <div class="dialog-heading">
+            <div>
+                <p class="eyebrow">JSON item</p>
+                <h2 id="dialogTitle">New item</h2>
+            </div>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button>
+        </div>
+        <div id="dynamicFields" class="dynamic-fields"></div>
+        <div class="dialog-actions">
+            <button class="button button-secondary" type="button" data-close-dialog>Cancel</button>
+            <button class="button button-primary" type="submit">Save item</button>
+        </div>
+    </form>
+</dialog>
+
 <script src="/assets/js/menu-manager.js"></script>
-
 <?php include __DIR__ . '/src/includes/footer.php'; ?>

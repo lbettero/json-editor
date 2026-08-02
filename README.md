@@ -1,156 +1,38 @@
-🧩 JSON Menu Editor — PHP + Alpine.js (v2.0.0)
+# JSON Explorer
 
-A robust, modular and extensible system for loading, editing, validating and saving multi-level menus stored in a menu.json file.
-Built with PHP, Alpine.js and TailwindCSS, this module now includes a visual menu editor, global field system, type-aware metadata propagation, and a fully safe JSON-saving workflow.
+A browser-based workspace for understanding and managing arbitrary JSON files.
 
-Ideal for dashboards, CMS-like control panels, embedded UIs or any environment that requires a structured, metadata-rich dynamic menu.
+## What it does
 
-🗓️ Version History
-Version	Date	Description
-v1.0.0	Initial release	Basic menu JSON loading and rendering.
-v2.0.0	Current	Major update: Global Fields, rigid propagation, field types, updated editor UI, improved saving pipeline, and JSON normalization overhaul.
-✨ Highlights of Version 2.0.0
-🧬 1. Global Fields System (NEW)
+- Loads `.json` files locally with the File API.
+- Infers and displays one unique structure for repeated objects and array items.
+- Shows data types, nested properties, item counts and optional fields.
+- Finds editable collections in root arrays or object properties.
+- Lists and searches collection items.
+- Creates, edits and deletes items without modifying the original file.
+- Downloads the updated data as a new JSON file.
 
-Define fields that automatically apply to all menu items across all levels.
+The file content is never uploaded to a server. All processing happens in the browser.
 
-Each field includes:
+## Run locally
 
-Field name
+```bash
+cd basic_website_menu
+php -S 127.0.0.1:8000
+```
 
-Field type (string, number, boolean, json)
+Open `http://127.0.0.1:8000/menu-manager.php`.
 
-Default value
+## Current editing behavior
 
-Ability to remove fields dynamically
+- Object properties become typed form fields.
+- Nested objects become grouped fieldsets.
+- Booleans use a `true`/`false` selector.
+- Numbers use numeric inputs.
+- Arrays and mixed values use a JSON textarea to preserve their structure.
+- An empty collection accepts the first item as a raw JSON object; after that, the inferred schema generates the form.
 
-These fields are then shown inside every menu item of the editor.
+## Requirements
 
-✔ Rigid propagation
-
-Every item always contains all global fields.
-
-✔ Guidance message added
-
-Below the Global Fields section:
-
-“After adding or removing global fields, save the menu so that these fields appear in all items.”
-
-📝 2. Updated Visual Menu Editor
-
-Add/edit/remove menu items
-
-Add siblings and nested items
-
-Up to 3 levels
-
-Automatic name rebuilding for nested structures
-
-Global fields appear dynamically inside each item
-
-Enhanced layout and accessibility
-
-💾 3. Improved JSON Saving (save-menu.php)
-
-Now includes:
-
-Conversion of field values according to their type
-
-Application of Global Field schema to all items
-
-Removal of obsolete fields
-
-Normalization of tags
-
-Full recursive processing
-
-Pretty-printed JSON
-
-Success screen with Download menu.json button
-
-🧠 4. Architecture Improvements
-
-Safer parsing
-
-Cleaner PHP structure (functions, includes)
-
-Enhanced frontend integration with Alpine.js
-
-Item editor dynamically reacts to global field changes
-
-📁 Project Structure
-menu-json-editor/
-│
-├── assets/
-│   ├── data/
-│   │   └── menu.json
-│   ├── icons/
-│   └── css/
-│       └── main.css
-│
-├── assets/js/
-│   ├── menu-editor.js      ← NEW v2.0.0
-│   ├── dashboard.js
-│   ├── menu.js
-│   └── menu-manager.js
-│
-├── src/
-│   ├── includes/
-│   │   ├── header.php
-│   │   └── footer.php
-│   └── functions/
-│       ├── menu.php
-│       ├── menu-editor.php ← UPDATED v2.0.0
-│       └── save-menu.php   ← UPDATED v2.0.0
-│
-├── menu-manager.php
-└── README.md
-
-🚀 How to Run
-
-Start a PHP server:
-
-php -S localhost:8000
-
-
-Open:
-
-http://localhost:8000/menu-manager.php
-
-🔄 Workflow (v2.0.0)
-
-menu.php loads JSON
-
-menu-editor.php displays items + global fields
-
-User edits both
-
-Saving applies rigid schema enforcement
-
-JSON is normalized and written to file
-
-User may download updated menu.json
-
-🧪 Validation & Safety
-
-✔ HTML sanitized
-✔ JSON validated
-✔ Field type casting
-✔ Rigid schema propagation
-✔ Error details shown clearly
-
-📜 Requirements
-
-PHP 8+
-
-No database required
-
-Works on any hosting environment
-
-👩‍💻 Author
-
-Livia Pérez Bettero
-
-🤖 Technical Collaboration
-
-ChatGPT (OpenAI)
+- PHP 8+ for the local static server.
+- A modern browser with File API, `dialog` and Blob download support.
