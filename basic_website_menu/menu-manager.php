@@ -15,6 +15,7 @@ include __DIR__ . '/src/includes/header.php';
     </section>
 
     <div id="notice" class="notice" role="status" aria-live="polite">No JSON file loaded.</div>
+    <div id="schemaNotice" class="notice notice-warning" role="status" aria-live="polite" hidden></div>
 
     <section id="workspace" class="workspace" hidden>
         <div class="toolbar">

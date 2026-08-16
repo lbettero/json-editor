@@ -11,8 +11,24 @@ A browser-based workspace for understanding and managing arbitrary JSON files.
 - Lists and searches collection items.
 - Creates, edits and deletes items without modifying the original file.
 - Downloads the updated data as a new JSON file.
+- Detects a declared `$schema`, loads it and validates the JSON against common schema rules.
+- Warns when no JSON Schema is declared or when the declared schema cannot be loaded.
+- Prevents invalid saves, deletions and downloads while schema validation is active.
 
 The file content is never uploaded to a server. All processing happens in the browser.
+
+## JSON Schema validation
+
+Add a `$schema` property with an accessible schema URL to enable validation:
+
+```json
+{
+  "$schema": "https://example.com/schema.json",
+  "items": []
+}
+```
+
+The editor supports common rules including types, required fields, properties, array items, limits, patterns, formats, enums, constants, schema combinations and local `$ref` references. If `$schema` is missing, the interface explains that only JSON syntax and inferred field types can be checked.
 
 ## Run locally
 
