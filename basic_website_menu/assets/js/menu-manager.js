@@ -1,8 +1,9 @@
 (() => {
-    const state = { original: null, data: null, fileName: 'data.json', collections: [], collectionKey: null, records: [], schema: null, editingIndex: null };
+    const state = { original: null, data: null, fileName: 'data.json', collections: [], collectionKey: null, records: [], schema: null, validationSchema: null, schemaReference: null, validationErrors: [], editingIndex: null };
     const $ = (selector) => document.querySelector(selector);
     const fileInput = $('#jsonFile');
     const notice = $('#notice');
+    const schemaNotice = $('#schemaNotice');
     const workspace = $('#workspace');
     const structureTree = $('#structureTree');
     const recordsList = $('#recordsList');
@@ -13,6 +14,121 @@
     const typeOf = (value) => value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
     const clone = (value) => JSON.parse(JSON.stringify(value));
     const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+
+    function valueAtPointer(document, pointer) {
+        if (pointer === '#') return document;
+        if (!pointer.startsWith('#/')) return undefined;
+        return pointer.slice(2).split('/').reduce((value, part) => value?.[part.replace(/~1/g, '/').replace(/~0/g, '~')], document);
+    }
+
+    function matchesType(value, type) {
+        if (type === 'null') return value === null;
+        if (type === 'array') return Array.isArray(value);
+        if (type === 'object') return value !== null && typeof value === 'object' && !Array.isArray(value);
+        if (type === 'integer') return Number.isInteger(value);
+        if (type === 'number') return typeof value === 'number' && Number.isFinite(value);
+        return typeof value === type;
+    }
+
+    function validateWithSchema(value, schema, rootSchema, path = '$', errors = []) {
+        if (schema === true) return errors;
+        if (schema === false) { errors.push(`${path}: value is not allowed.`); return errors; }
+        if (!schema || typeof schema !== 'object') return errors;
+
+        if (schema.$ref) {
+            const referenced = valueAtPointer(rootSchema, schema.$ref);
+            if (referenced === undefined) errors.push(`${path}: schema reference ${schema.$ref} was not found.`);
+            else validateWithSchema(value, referenced, rootSchema, path, errors);
+            return errors;
+        }
+
+        const allowedTypes = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
+        if (allowedTypes.length && !allowedTypes.some(type => matchesType(value, type))) {
+            errors.push(`${path}: expected ${allowedTypes.join(' or ')}, received ${typeOf(value)}.`);
+            return errors;
+        }
+        if (schema.const !== undefined && JSON.stringify(value) !== JSON.stringify(schema.const)) errors.push(`${path}: value must match the required constant.`);
+        if (schema.enum && !schema.enum.some(item => JSON.stringify(item) === JSON.stringify(value))) errors.push(`${path}: value is not in the allowed list.`);
+
+        if (typeof value === 'string') {
+            if (schema.minLength !== undefined && value.length < schema.minLength) errors.push(`${path}: must contain at least ${schema.minLength} characters.`);
+            if (schema.maxLength !== undefined && value.length > schema.maxLength) errors.push(`${path}: must contain at most ${schema.maxLength} characters.`);
+            if (schema.pattern) {
+                try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: does not match the required pattern.`); }
+                catch { errors.push(`${path}: the schema contains an invalid pattern.`); }
+            }
+            if (schema.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) errors.push(`${path}: must be a valid email address.`);
+            if (schema.format === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(value)) errors.push(`${path}: must use the YYYY-MM-DD date format.`);
+            if (schema.format === 'date-time' && Number.isNaN(Date.parse(value))) errors.push(`${path}: must be a valid date and time.`);
+        }
+
+        if (typeof value === 'number') {
+            if (schema.minimum !== undefined && value < schema.minimum) errors.push(`${path}: must be at least ${schema.minimum}.`);
+            if (schema.maximum !== undefined && value > schema.maximum) errors.push(`${path}: must be at most ${schema.maximum}.`);
+            if (schema.exclusiveMinimum !== undefined && value <= schema.exclusiveMinimum) errors.push(`${path}: must be greater than ${schema.exclusiveMinimum}.`);
+            if (schema.exclusiveMaximum !== undefined && value >= schema.exclusiveMaximum) errors.push(`${path}: must be less than ${schema.exclusiveMaximum}.`);
+        }
+
+        if (Array.isArray(value)) {
+            if (schema.minItems !== undefined && value.length < schema.minItems) errors.push(`${path}: must contain at least ${schema.minItems} items.`);
+            if (schema.maxItems !== undefined && value.length > schema.maxItems) errors.push(`${path}: must contain at most ${schema.maxItems} items.`);
+            if (schema.uniqueItems && new Set(value.map(item => JSON.stringify(item))).size !== value.length) errors.push(`${path}: items must be unique.`);
+            if (schema.items) value.forEach((item, index) => validateWithSchema(item, schema.items, rootSchema, `${path}[${index}]`, errors));
+        }
+
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            (schema.required || []).forEach(key => { if (!(key in value)) errors.push(`${path}.${key}: required field is missing.`); });
+            Object.entries(schema.properties || {}).forEach(([key, childSchema]) => {
+                if (key in value) validateWithSchema(value[key], childSchema, rootSchema, `${path}.${key}`, errors);
+            });
+            if (schema.additionalProperties === false) {
+                Object.keys(value).filter(key => !(key in (schema.properties || {}))).forEach(key => errors.push(`${path}.${key}: field is not allowed.`));
+            }
+        }
+        (schema.allOf || []).forEach(childSchema => validateWithSchema(value, childSchema, rootSchema, path, errors));
+        if (schema.anyOf && !schema.anyOf.some(childSchema => validateWithSchema(value, childSchema, rootSchema, path, []).length === 0)) errors.push(`${path}: does not match any allowed schema.`);
+        if (schema.oneOf && schema.oneOf.filter(childSchema => validateWithSchema(value, childSchema, rootSchema, path, []).length === 0).length !== 1) errors.push(`${path}: must match exactly one allowed schema.`);
+        return errors;
+    }
+
+    function renderSchemaStatus() {
+        schemaNotice.hidden = false;
+        if (!state.schemaReference) {
+            schemaNotice.className = 'notice notice-warning';
+            schemaNotice.innerHTML = '<strong>No JSON Schema declared.</strong> The editor can check JSON syntax and inferred field types, but it cannot prevent values that break project-specific rules.';
+            return;
+        }
+        if (!state.validationSchema) {
+            schemaNotice.className = 'notice notice-error';
+            schemaNotice.innerHTML = `<strong>Schema not available.</strong> The file declares <code>${escapeHtml(state.schemaReference)}</code>, but it could not be loaded. Project-specific formats cannot be enforced.`;
+            return;
+        }
+        state.validationErrors = validateWithSchema(state.data, state.validationSchema, state.validationSchema);
+        if (!state.validationErrors.length) {
+            schemaNotice.className = 'notice notice-success';
+            schemaNotice.innerHTML = `<strong>JSON Schema active.</strong> The content follows <code>${escapeHtml(state.schemaReference)}</code>.`;
+            return;
+        }
+        schemaNotice.className = 'notice notice-error';
+        schemaNotice.innerHTML = `<strong>Schema validation failed.</strong><ul class="validation-errors">${state.validationErrors.slice(0, 8).map(error => `<li>${escapeHtml(error)}</li>`).join('')}</ul>${state.validationErrors.length > 8 ? `<p>${state.validationErrors.length - 8} more errors were found.</p>` : ''}`;
+    }
+
+    async function loadDeclaredSchema(data) {
+        state.schemaReference = typeof data?.$schema === 'string' ? data.$schema : null;
+        state.validationSchema = null;
+        state.validationErrors = [];
+        if (!state.schemaReference) { renderSchemaStatus(); return; }
+        try {
+            const response = await fetch(state.schemaReference, { headers: { Accept: 'application/schema+json, application/json' } });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const schema = await response.json();
+            if (!schema || typeof schema !== 'object' || Array.isArray(schema)) throw new Error('Invalid schema document');
+            state.validationSchema = schema;
+        } catch (error) {
+            console.warn('Could not load the declared JSON Schema.', error);
+        }
+        renderSchemaStatus();
+    }
 
     function mergeSchemas(a, b) {
         if (!a) return b;
@@ -62,11 +178,12 @@
         renderAll();
     }
 
-    function loadData(data, name) {
+    async function loadData(data, name) {
         if (!data || (typeof data !== 'object')) throw new Error('The JSON root must be an object or an array.');
         state.original = clone(data);
         state.data = data;
         state.fileName = name || 'data.json';
+        await loadDeclaredSchema(data);
         state.collections = findCollections(data);
         if (!state.collections.length) throw new Error('No editable collection was found.');
         workspace.hidden = false;
@@ -192,7 +309,7 @@
     fileInput.addEventListener('change', async event => {
         const file = event.target.files[0];
         if (!file) return;
-        try { loadData(JSON.parse(await file.text()), file.name); }
+        try { await loadData(JSON.parse(await file.text()), file.name); }
         catch (error) { workspace.hidden = true; notice.textContent = `Could not load the file: ${error.message}`; notice.className = 'notice notice-error'; }
         event.target.value = '';
     });
@@ -206,8 +323,14 @@
         event.preventDefault();
         try {
             const record = readForm();
+            const previousRecords = clone(state.records);
             if (state.editingIndex === null) state.records.push(record); else state.records[state.editingIndex] = record;
-            syncData(); renderAll(); dialog.close(); notice.textContent = 'Item saved. Download the JSON when you are ready.'; notice.className = 'notice notice-success';
+            syncData();
+            if (state.validationSchema && validateWithSchema(state.data, state.validationSchema, state.validationSchema).length) {
+                state.records.splice(0, state.records.length, ...previousRecords); syncData(); renderSchemaStatus();
+                throw new Error('The item does not follow the declared JSON Schema.');
+            }
+            renderAll(); renderSchemaStatus(); dialog.close(); notice.textContent = 'Item saved. Download the JSON when you are ready.'; notice.className = 'notice notice-success';
         } catch (error) { alert(`Please check the form: ${error.message}`); }
     });
 
@@ -216,7 +339,14 @@
         if (edit) openEditor(Number(edit.dataset.edit));
         const remove = event.target.closest('[data-delete]');
         if (remove && confirm('Delete this item? This action can only be undone by reloading the original file.')) {
-            state.records.splice(Number(remove.dataset.delete), 1); syncData(); renderAll();
+            const removedIndex = Number(remove.dataset.delete);
+            const removed = state.records.splice(removedIndex, 1)[0]; syncData();
+            if (state.validationSchema && validateWithSchema(state.data, state.validationSchema, state.validationSchema).length) {
+                state.records.splice(removedIndex, 0, removed); syncData(); renderSchemaStatus();
+                alert('This item cannot be deleted because the result would break the declared JSON Schema.');
+                return;
+            }
+            renderAll(); renderSchemaStatus();
         }
     });
 
@@ -235,6 +365,11 @@
 
     $('#downloadButton').addEventListener('click', () => {
         syncData();
+        renderSchemaStatus();
+        if (state.validationSchema && state.validationErrors.length) {
+            alert('The JSON cannot be downloaded until the schema validation errors are fixed.');
+            return;
+        }
         const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement('a'); anchor.href = url; anchor.download = state.fileName.replace(/\.json$/i, '') + '-updated.json'; anchor.click();

@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<!--
+  Project: json-editor
+  Description: A browser-based workspace for exploring, validating, and editing JSON files.
+  Version: 3.1.0
+  Last updated: 2026-08-16
+  Author: LBETTERO
+  Repository: https://github.com/lbettero/json-editor
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
