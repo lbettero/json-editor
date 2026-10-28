@@ -2,6 +2,8 @@
 
 A browser-based workspace for understanding and managing arbitrary JSON files.
 
+Current version: **3.1.1**
+
 ## What it does
 
 - Loads `.json` files locally with the File API.
