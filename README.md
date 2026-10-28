@@ -2,6 +2,8 @@
 
 A browser-based workspace for understanding and managing arbitrary JSON files.
 
+Current version: **3.1.1**
+
 ## What it does
 
 - Loads `.json` files locally with the File API.
@@ -29,6 +31,20 @@ Add a `$schema` property with an accessible schema URL to enable validation:
 ```
 
 The editor supports common rules including types, required fields, properties, array items, limits, patterns, formats, enums, constants, schema combinations and local `$ref` references. If `$schema` is missing, the interface explains that only JSON syntax and inferred field types can be checked.
+
+For security, a remote `$schema` is never fetched automatically. The user must confirm the request, and the editor rejects credentialed, local/private-network, oversized, or slow schema responses. JSON files are limited to 5 MB and risky regular-expression patterns are skipped.
+
+## Legacy server-side menu saving
+
+The current JSON workspace edits and downloads files in the browser. The older PHP menu-saving endpoint is disabled by default. If a trusted local deployment still needs it, configure all three environment variables:
+
+```text
+JSON_EDITOR_ENABLE_LEGACY_SAVE=1
+JSON_EDITOR_ADMIN_USER=<admin user>
+JSON_EDITOR_ADMIN_PASSWORD=<strong unique password>
+```
+
+The endpoint accepts only same-origin authenticated POST requests up to 1 MB. Do not publish the legacy editor without HTTPS and additional deployment access controls.
 
 ## Run locally
 
