@@ -1,5 +1,10 @@
 (() => {
-    const state = { original: null, data: null, fileName: 'data.json', collections: [], collectionKey: null, records: [], schema: null, validationSchema: null, schemaReference: null, validationErrors: [], editingIndex: null };
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_SCHEMA_BYTES = 1024 * 1024;
+    const MAX_PATTERN_LENGTH = 256;
+    const MAX_VALIDATED_STRING_LENGTH = 10000;
+    const SCHEMA_TIMEOUT_MS = 5000;
+    const state = { original: null, data: null, fileName: 'data.json', collections: [], collectionKey: null, records: [], schema: null, validationSchema: null, schemaReference: null, validationErrors: [], editingIndex: null, schemaLoadPending: false };
     const $ = (selector) => document.querySelector(selector);
     const fileInput = $('#jsonFile');
     const notice = $('#notice');
@@ -10,6 +15,50 @@
     const dialog = $('#recordDialog');
     const form = $('#recordForm');
     const fields = $('#dynamicFields');
+
+    function isSafePattern(pattern) {
+        if (typeof pattern !== 'string' || pattern.length > MAX_PATTERN_LENGTH) return false;
+        return !/(\([^)]*[+*][^)]*\)|\[[^\]]+\]|\.|\\[dDsSwW])[+*{]/.test(pattern);
+    }
+
+    function safeSchemaUrl(reference) {
+        try {
+            const url = new URL(reference, window.location.href);
+            if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) return null;
+            const host = url.hostname.toLowerCase();
+            const privateHost = host === 'localhost' || host === '0.0.0.0' || host === '::1'
+                || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)
+                || /^169\.254\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+            return privateHost ? null : url;
+        } catch {
+            return null;
+        }
+    }
+
+    async function readTextWithLimit(response, limit) {
+        if (!response.body?.getReader) {
+            const text = await response.text();
+            if (new Blob([text]).size > limit) throw new Error('Schema is too large');
+            return text;
+        }
+        const reader = response.body.getReader();
+        const chunks = [];
+        let total = 0;
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            total += value.byteLength;
+            if (total > limit) {
+                await reader.cancel();
+                throw new Error('Schema is too large');
+            }
+            chunks.push(value);
+        }
+        const bytes = new Uint8Array(total);
+        let offset = 0;
+        chunks.forEach(chunk => { bytes.set(chunk, offset); offset += chunk.byteLength; });
+        return new TextDecoder().decode(bytes);
+    }
 
     const typeOf = (value) => value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
     const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -54,7 +103,9 @@
             if (schema.minLength !== undefined && value.length < schema.minLength) errors.push(`${path}: must contain at least ${schema.minLength} characters.`);
             if (schema.maxLength !== undefined && value.length > schema.maxLength) errors.push(`${path}: must contain at most ${schema.maxLength} characters.`);
             if (schema.pattern) {
-                try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: does not match the required pattern.`); }
+                if (!isSafePattern(schema.pattern) || value.length > MAX_VALIDATED_STRING_LENGTH) {
+                    errors.push(`${path}: pattern validation was skipped because it exceeds safety limits.`);
+                } else try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: does not match the required pattern.`); }
                 catch { errors.push(`${path}: the schema contains an invalid pattern.`); }
             }
             if (schema.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) errors.push(`${path}: must be a valid email address.`);
@@ -100,7 +151,9 @@
         }
         if (!state.validationSchema) {
             schemaNotice.className = 'notice notice-error';
-            schemaNotice.innerHTML = `<strong>Schema not available.</strong> The file declares <code>${escapeHtml(state.schemaReference)}</code>, but it could not be loaded. Project-specific formats cannot be enforced.`;
+            const action = state.schemaLoadPending ? ' <button type="button" id="loadDeclaredSchema">Load this schema</button>' : '';
+            schemaNotice.innerHTML = `<strong>Schema not loaded.</strong> The file declares <code>${escapeHtml(state.schemaReference)}</code>. Remote schemas require your confirmation and must pass URL and size checks.${action}`;
+            document.querySelector('#loadDeclaredSchema')?.addEventListener('click', loadConfirmedSchema);
             return;
         }
         state.validationErrors = validateWithSchema(state.data, state.validationSchema, state.validationSchema);
@@ -113,20 +166,46 @@
         schemaNotice.innerHTML = `<strong>Schema validation failed.</strong><ul class="validation-errors">${state.validationErrors.slice(0, 8).map(error => `<li>${escapeHtml(error)}</li>`).join('')}</ul>${state.validationErrors.length > 8 ? `<p>${state.validationErrors.length - 8} more errors were found.</p>` : ''}`;
     }
 
-    async function loadDeclaredSchema(data) {
-        state.schemaReference = typeof data?.$schema === 'string' ? data.$schema : null;
-        state.validationSchema = null;
-        state.validationErrors = [];
-        if (!state.schemaReference) { renderSchemaStatus(); return; }
+    async function loadConfirmedSchema() {
+        const schemaUrl = safeSchemaUrl(state.schemaReference);
+        if (!schemaUrl) {
+            state.schemaLoadPending = false;
+            schemaNotice.className = 'notice notice-error';
+            schemaNotice.textContent = 'The declared schema URL is not allowed. Use a public HTTP(S) URL without credentials.';
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), SCHEMA_TIMEOUT_MS);
+        state.schemaLoadPending = false;
         try {
-            const response = await fetch(state.schemaReference, { headers: { Accept: 'application/schema+json, application/json' } });
+            const response = await fetch(schemaUrl.href, {
+                headers: { Accept: 'application/schema+json, application/json' },
+                credentials: 'omit',
+                referrerPolicy: 'no-referrer',
+                signal: controller.signal
+            });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const schema = await response.json();
+            const declaredLength = Number(response.headers.get('content-length') || 0);
+            if (declaredLength > MAX_SCHEMA_BYTES) throw new Error('Schema is too large');
+            const text = await readTextWithLimit(response, MAX_SCHEMA_BYTES);
+            const schema = JSON.parse(text);
             if (!schema || typeof schema !== 'object' || Array.isArray(schema)) throw new Error('Invalid schema document');
             state.validationSchema = schema;
         } catch (error) {
             console.warn('Could not load the declared JSON Schema.', error);
+        } finally {
+            window.clearTimeout(timeout);
         }
+        renderSchemaStatus();
+    }
+
+    async function loadDeclaredSchema(data) {
+        state.schemaReference = typeof data?.$schema === 'string' ? data.$schema : null;
+        state.validationSchema = null;
+        state.validationErrors = [];
+        state.schemaLoadPending = Boolean(state.schemaReference);
+        if (!state.schemaReference) { renderSchemaStatus(); return; }
         renderSchemaStatus();
     }
 
@@ -309,6 +388,10 @@
     fileInput.addEventListener('change', async event => {
         const file = event.target.files[0];
         if (!file) return;
+        if (file.size > MAX_FILE_BYTES) {
+            notice.textContent = 'The selected JSON file is larger than the 5 MB safety limit.';
+            return;
+        }
         try { await loadData(JSON.parse(await file.text()), file.name); }
         catch (error) { workspace.hidden = true; notice.textContent = `Could not load the file: ${error.message}`; notice.className = 'notice notice-error'; }
         event.target.value = '';
